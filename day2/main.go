@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -16,38 +17,29 @@ func main() {
 
 	byteValue, _ := ioutil.ReadAll(textFile)
 	values := strings.Split(string(byteValue), "\n")
-	total := 0
+	firstPasswordPolicyValid := 0
+	secondPasswordPolicyValid := 0
 
-	// for _, v := range values {
-	// 	if v == "" {
-	// 		continue
-	// 	}
-	// 	split := strings.Split(v, ":")
-	// 	rules := strings.Split(split[0], " ")
-	// 	letter := rules[1]
-	// 	numbers := strings.Split(rules[0], "-")
-
-	// 	min, _ := strconv.Atoi(numbers[0])
-	// 	max, _ := strconv.Atoi(numbers[1])
-
-	// 	count := strings.Count(split[1], letter)
-	// 	if count >= min && count <= max {
-	// 		total++
-	// 	}
-	// }
-
+	r := regexp.MustCompile(`(\d*)-(\d*)\s([a-z]): ([a-z]*)`)
 	for _, v := range values {
-		split := strings.Split(v, ":")
-		rules := strings.Split(split[0], " ")
-		letter := rules[1]
-		numbers := strings.Split(rules[0], "-")
+		matches := r.FindStringSubmatch(v)
+		firstBoundary, secondBoundary, letter, password := matches[1], matches[2], matches[3], matches[4]
 
-		index1, _ := strconv.Atoi(numbers[0])
-		index2, _ := strconv.Atoi(numbers[1])
-		if (string(split[1][index1]) == letter || string(split[1][index2]) == letter) && (split[1][index1] != split[1][index2]) {
-			total++
+		index1, _ := strconv.Atoi(firstBoundary)
+		index2, _ := strconv.Atoi(secondBoundary)
+
+		count := strings.Count(password, letter)
+		if count >= index1 && count <= index2 {
+			firstPasswordPolicyValid++
+		}
+
+		isInFirstPosition := password[index1-1] == letter[0]
+		isInSecondPosition := password[index2-1] == letter[0]
+		if isInFirstPosition != isInSecondPosition {
+			secondPasswordPolicyValid++
 		}
 	}
 
-	fmt.Println(total)
+	fmt.Println("number of passwords valid with the first password policy =>", firstPasswordPolicyValid)
+	fmt.Println("number of passwords valid with the second password policy =>", secondPasswordPolicyValid)
 }
