@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"math"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -18,44 +18,42 @@ func main() {
 	byteValue, _ := ioutil.ReadAll(textFile)
 	values := strings.Split(string(byteValue), "\n")
 
-	maxID := 0
+	var maxID int
 	ids := make([]int, len(values))
+	for i, ticketID := range values {
+		ticketID = strings.Map(func(r rune) rune {
+			if r == 'B' || r == 'R' {
+				return '1'
+			}
+			return '0'
+		}, ticketID)
 
-	for i, v := range values {
-		minR, maxR := 0, 127
-		minC, maxC := 0, 7
-		for _, c := range v {
-			if c == 'F' {
-				maxR = int(math.Floor(float64(minR + (maxR-minR)/2)))
-			}
-			if c == 'B' {
-				minR = int(math.Ceil(float64(minR + (maxR-minR)/2 + 1)))
-			}
-			if c == 'L' {
-				maxC = int(math.Floor(float64(minC + (maxC-minC)/2)))
-			}
-			if c == 'R' {
-				minC = int(math.Ceil(float64(minC + (maxC-minC)/2 + 1)))
-			}
+		id64, err := strconv.ParseInt(ticketID, 2, 64)
+		if err != nil {
+			break
 		}
-		id := minR*8 + minC
-		ids[i] = id
-		if id > maxID {
-			maxID = id
+		id := int(id64)
+		ids[i] = int(id)
+		if int(id) > maxID {
+			maxID = int(id)
 		}
 	}
-	fmt.Println("maxId", maxID)
+
 	sort.Ints(ids)
 
-	var currentID int
+	var currentID, myID int
 	for _, id := range ids {
 		if currentID == 0 {
 			currentID = id
 			continue
 		}
 		if id-currentID != 1 {
-			fmt.Println("MyId between", currentID, id)
+			myID = id - 1
+			break
 		}
 		currentID = id
 	}
+
+	fmt.Println("The highest ticketID on the list is =>", maxID)
+	fmt.Println("My ticketID is =>", myID)
 }
