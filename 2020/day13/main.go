@@ -49,22 +49,15 @@ func findSuitStupid(ids []int) int {
 	for {
 		goodRun := true
 		for i, id := range ids {
-			if id == -1 {
+			if _, ok := cleaned[i]; ok || id == -1 {
 				continue
 			}
 			if (iter+i)%id != 0 {
 				goodRun = false
 				continue
 			} else {
-				if _, ok := cleaned[i]; ok {
-					continue
-				}
 				cleaned[i] = true
 				loop *= id
-				if loop < 0 {
-					fmt.Println("error")
-					return -1
-				}
 			}
 		}
 		if goodRun {

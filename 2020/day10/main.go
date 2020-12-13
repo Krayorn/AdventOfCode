@@ -9,8 +9,6 @@ import (
 	"strings"
 )
 
-var memory = make(map[int]int)
-
 func main() {
 	textFile, err := os.Open("./input.txt")
 	if err != nil {
@@ -37,7 +35,9 @@ func main() {
 		diffCount[diff]++
 		last = n
 	}
+
 	fmt.Println(diffCount[1] * diffCount[3])
+
 	possibilities := make(map[int][]int)
 	for i := 0; i < len(numbers)-1; i++ {
 		possibilities[numbers[i]] = []int{}
@@ -49,6 +49,8 @@ func main() {
 	}
 	fmt.Println(getNumberOfPossibilities(0, possibilities))
 }
+
+var memory = make(map[int]int)
 
 func getNumberOfPossibilities(entry int, possibilities map[int][]int) int {
 	if _, ok := memory[entry]; ok {
