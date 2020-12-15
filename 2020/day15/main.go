@@ -7,8 +7,8 @@ import (
 )
 
 type numberData struct {
-	turns []int
-	count int
+	lastTime     int
+	lastLastTime int
 }
 
 func main() {
@@ -21,30 +21,26 @@ func main() {
 	for i, v := range values {
 		n, _ := strconv.Atoi(v)
 		numbers[i] = n
-		numberHistory[n] = numberData{turns: []int{i + 1}, count: 1}
+		numberHistory[n] = numberData{lastTime: i + 1, lastLastTime: i + 1}
 	}
 
 	lastNumber := numbers[len(numbers)-1]
-	// runs in 6s
+	// runs in ~3.5s
 	for i := len(numbers) + 1; i < 30000001; i++ {
 		nd, ok := numberHistory[lastNumber]
-		if !ok || nd.count == 1 {
+		if !ok || nd.lastTime == nd.lastLastTime {
 			lastNumber = 0
 			if data, ok := numberHistory[0]; !ok {
-				numberHistory[0] = numberData{turns: []int{i}, count: 1}
+				numberHistory[0] = numberData{lastTime: i, lastLastTime: i}
 			} else {
-				data.turns = append(data.turns, i)
-				data.count++
-				numberHistory[0] = data
+				numberHistory[0] = numberData{lastTime: i, lastLastTime: data.lastTime}
 			}
 		} else {
-			lastNumber = nd.turns[len(nd.turns)-1] - nd.turns[len(nd.turns)-2]
+			lastNumber = nd.lastTime - nd.lastLastTime
 			if data, ok := numberHistory[lastNumber]; !ok {
-				numberHistory[lastNumber] = numberData{turns: []int{i}, count: 1}
+				numberHistory[lastNumber] = numberData{lastTime: i, lastLastTime: i}
 			} else {
-				data.turns = append(data.turns, i)
-				data.count++
-				numberHistory[lastNumber] = data
+				numberHistory[lastNumber] = numberData{lastTime: i, lastLastTime: data.lastTime}
 			}
 		}
 	}
