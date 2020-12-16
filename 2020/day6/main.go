@@ -16,8 +16,8 @@ func main() {
 	byteValue, _ := ioutil.ReadAll(textFile)
 	values := strings.Split(string(byteValue), "\n\n")
 
-	total := 0
-	total2 := 0
+	questionsWithSomeYesCount := 0
+	questionsWithOnlyYesCount := 0
 
 	for _, group := range values {
 		groupYes := map[rune]int{}
@@ -37,9 +37,9 @@ func main() {
 				groupTotal++
 			}
 		}
-		total += len(groupYes)
-		total2 += groupTotal
+		questionsWithSomeYesCount += len(groupYes)
+		questionsWithOnlyYesCount += groupTotal
 	}
-	fmt.Println(total)
-	fmt.Println(total2)
+	fmt.Println("The sum of the counts of questions to which anyone answered yes is =>", questionsWithSomeYesCount)
+	fmt.Println("The sum of the counts of questions to which everyone answered yes is =>", questionsWithOnlyYesCount)
 }
