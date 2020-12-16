@@ -4,45 +4,33 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 )
 
-type numberData struct {
-	lastTime     int
-	lastLastTime int
-}
-
 func main() {
+	startTime := time.Now()
 	input := "9,3,1,0,8,4"
 	values := strings.Split(input, ",")
 
-	numbers := make([]int, len(values))
-	numberHistory := make(map[int]numberData)
+	max := 30000000
+
+	numbers := make([]int, max)
+	seen := make(map[int]int)
 
 	for i, v := range values {
 		n, _ := strconv.Atoi(v)
 		numbers[i] = n
-		numberHistory[n] = numberData{lastTime: i + 1, lastLastTime: i + 1}
+		seen[n] = i
 	}
 
-	lastNumber := numbers[len(numbers)-1]
-	// runs in ~3.5s
-	for i := len(numbers) + 1; i < 30000001; i++ {
-		nd, ok := numberHistory[lastNumber]
-		if !ok || nd.lastTime == nd.lastLastTime {
-			lastNumber = 0
-			if data, ok := numberHistory[0]; !ok {
-				numberHistory[0] = numberData{lastTime: i, lastLastTime: i}
-			} else {
-				numberHistory[0] = numberData{lastTime: i, lastLastTime: data.lastTime}
-			}
-		} else {
-			lastNumber = nd.lastTime - nd.lastLastTime
-			if data, ok := numberHistory[lastNumber]; !ok {
-				numberHistory[lastNumber] = numberData{lastTime: i, lastLastTime: i}
-			} else {
-				numberHistory[lastNumber] = numberData{lastTime: i, lastLastTime: data.lastTime}
-			}
+	for i := len(values); i < max-1; i++ {
+		if nd, ok := seen[numbers[i]]; ok {
+			numbers[i+1] = i - nd
 		}
+		seen[numbers[i]] = i
 	}
-	fmt.Println(lastNumber)
+
+	fmt.Println(numbers[len(numbers)-1])
+	totalCallTime := time.Since(startTime).Truncate(1 * time.Millisecond)
+	fmt.Println("Total call time : ", totalCallTime)
 }
