@@ -1,9 +1,8 @@
 package main
 
 import (
+	_ "embed"
 	"fmt"
-	"io/ioutil"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -13,14 +12,11 @@ type Location struct {
 	i, j int
 }
 
-func main() {
-	textFile, err := os.Open("./input.txt")
-	if err != nil {
-		fmt.Println(err)
-	}
+//go:embed input.txt
+var content string
 
-	byteValue, _ := ioutil.ReadAll(textFile)
-	values := strings.Split(string(byteValue), "\n")
+func main() {
+	values := strings.Split(content, "\n")
 
 	cave := make([][]int, len(values))
 	for i, l := range values {

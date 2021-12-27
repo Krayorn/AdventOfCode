@@ -9,6 +9,9 @@ import (
 	"strings"
 )
 
+//go:embed input.txt
+var content string
+
 func main() {
 	textFile, err := os.Open("./input.txt")
 	if err != nil {
