@@ -18,7 +18,6 @@ func main() {
 	sum := 0
 	enabled := true
 	for _, match := range matches {
-		fmt.Println(match, enabled)
 		if match[0] == "don't()" {
 			enabled = false
 			continue
@@ -35,7 +34,6 @@ func main() {
 
 		n1, _ := strconv.Atoi(match[1])
 		n2, _ := strconv.Atoi(match[2])
-		fmt.Println(match, n1, n2)
 		sum += n1 * n2
 	}
 
