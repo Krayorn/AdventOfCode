@@ -6,6 +6,8 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/draffensperger/golp"
 )
 
 //go:embed input.txt
@@ -16,10 +18,7 @@ type State struct {
 	Count int
 }
 
-type StateJ struct {
-	CurrentJoltage []int
-	Count          int
-}
+const maxPresses = 1000
 
 func main() {
 	lines := strings.Split(content, "\n")
@@ -89,6 +88,54 @@ func main() {
 				queue = append(queue, State{item.Mask ^ action, item.Count + 1})
 			}
 		}
+
+		if slices.Equal(wantedJolts, jolts) {
+			continue
+		}
+
+		numButtons := len(operationsNumbers)
+		numJoltages := len(wantedJolts)
+
+		lp := golp.NewLP(0, numButtons)
+		lp.SetVerboseLevel(golp.NEUTRAL)
+
+		objectiveCoeffs := make([]float64, numButtons)
+		for i := range numButtons {
+			objectiveCoeffs[i] = 1.0
+		}
+		lp.SetObjFn(objectiveCoeffs)
+
+		for i := range numButtons {
+			lp.SetInt(i, true)
+			lp.SetBounds(i, 0.0, float64(maxPresses))
+		}
+
+		for i := 0; i < numJoltages; i++ {
+			var entries []golp.Entry
+			for j, btn := range operationsNumbers {
+				if slices.Contains(btn, i) {
+					entries = append(entries, golp.Entry{Col: j, Val: 1.0})
+				}
+			}
+			targetValue := float64(wantedJolts[i])
+			if err := lp.AddConstraintSparse(entries, golp.EQ, targetValue); err != nil {
+				panic(err)
+			}
+		}
+
+		status := lp.Solve()
+
+		if status != golp.OPTIMAL {
+			continue
+		}
+
+		solution := lp.Variables()
+		totalPresses := 0
+		for _, val := range solution {
+			totalPresses += int(val + 0.5)
+		}
+
+		sum2 += totalPresses
 	}
 
 	fmt.Println(sum, sum2)
